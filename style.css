@@ -1,0 +1,40 @@
+* {
+	box-sizing: border-box;
+}
+
+
+body, html {
+    height: 100%;
+    margin: 0;
+    background-color: rgb(229, 238, 250);
+    transition: 0.4s;
+}
+
+.container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+form {
+    width: 100%;
+}
+
+.question {
+    display: none;
+}
+
+.question.active {
+    display: block;
+    animation: fadeIn 0.5s;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
