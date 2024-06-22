@@ -1,68 +1,84 @@
-body, html {
-    height: 100%;
-    margin: 0;
+* {
+    border: none !important;
+} 
+
+body {
     display: flex;
     flex-direction: column;
+    min-height: 100vh;
+}
+
+header {
+    flex-shrink: 0;
+}
+
+main {
+    flex-grow: 1;
+    display: flex;
     align-items: center;
-    justify-content: start;
-    background-color: #f8f9fa;
+    justify-content: center;
+    border: none;
 }
 
-.container {
-    max-width: 800px;
-    width: 100%;
-    padding: 15px;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    margin-top: 20px;
+
+.container, .row, .col-lg-10 {
+    border: none !important;
 }
 
-.hero {
+.btn-group .btn {
+    width: 100px;
+    margin: 0 10px;
+}
+
+
+.card {
+    max-height: 80vh;
+    overflow-y: auto;
+    border: none !important;
+    box-shadow: none !important;
+    background-color: transparent !important;
+}
+
+.card-body {
+    padding: 0 !important;
+    background-color: transparent !important;
+}
+
+#question-container {
+    transition: opacity 0.3s ease-in-out;
+}
+
+#question-image {
+    max-height: 200px;
+    object-fit: contain;
+}
+
+.likert-table {
+    font-size: 0.8rem;
+}
+
+.likert-table th, .likert-table td {
+    text-align: center;
+    vertical-align: middle;
+    padding: 0.3rem;
+    
+}
+
+.likert-table td:first-child {
     text-align: left;
-    margin-bottom: 20px;
+    
 }
 
-.img-fluid {
-    max-width: 100%;
-    height: auto;
-    border-radius: 8px;
+#text-answer {
+    width: 100%;
+    margin-bottom: 15px;
 }
 
-.progress {
-    height: 20px;
-    background-color: #e9ecef;
-    border-radius: 8px;
-}
-
-.progress-bar {
-    background-color: #007bff;
-    height: 20px;
-    border-radius: 8px;
-}
-
-.question {
-    display: none;
-    opacity: 0;
-    transition: opacity 0.5s ease-in-out;
-}
-
-.question.active {
-    display: block;
-    opacity: 1;
-}
-
-@media (max-width: 600px) {
-    .container {
-        padding: 10px;
-        max-width: 90%;
+@media (max-width: 768px) {
+    .likert-table {
+        font-size: 0.7rem;
     }
-
-    .form-check-label {
-        font-size: 14px;
-    }
-
-    h4 {
-        font-size: 18px;
+    .likert-table th, .likert-table td {
+        padding: 0.2rem;
     }
 }
