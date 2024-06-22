@@ -1,40 +1,68 @@
-* {
-	box-sizing: border-box;
-}
-
-
 body, html {
     height: 100%;
     margin: 0;
-    background-color: rgb(229, 238, 250);
-    transition: 0.4s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: start;
+    background-color: #f8f9fa;
 }
 
 .container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
+    max-width: 800px;
+    width: 100%;
+    padding: 15px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
 }
 
-form {
-    width: 100%;
+.hero {
+    text-align: left;
+    margin-bottom: 20px;
+}
+
+.img-fluid {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+}
+
+.progress {
+    height: 20px;
+    background-color: #e9ecef;
+    border-radius: 8px;
+}
+
+.progress-bar {
+    background-color: #007bff;
+    height: 20px;
+    border-radius: 8px;
 }
 
 .question {
     display: none;
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
 }
 
 .question.active {
     display: block;
-    animation: fadeIn 0.5s;
+    opacity: 1;
 }
 
-@keyframes fadeIn {
-    from {
-        opacity: 0;
+@media (max-width: 600px) {
+    .container {
+        padding: 10px;
+        max-width: 90%;
     }
-    to {
-        opacity: 1;
+
+    .form-check-label {
+        font-size: 14px;
+    }
+
+    h4 {
+        font-size: 18px;
     }
 }
