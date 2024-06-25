@@ -14,6 +14,25 @@ const questions = [
     image: "survey.svg",
   },
   {
+    text: "How satisfied were you with the following?",
+    type: "likert",
+    statements: [
+      "Performance of equipment and facilities",
+      "Support for users provided by the facility staff",
+      "Fraction of the year that the facility operates",
+      "Scheduling and instrument availability (i.e., the awarded time was delivered on schedule and downtime was kept to a minimum)"
+    ],
+    options: [
+      "Strongly agree",
+      "Agree",
+      "Neither agree nor disagree",
+      "Disagree",
+      "Strongly disagree",
+      "Not Applicable",
+    ],
+    image: "survey.svg",
+  },
+  {
     text: "What most impressed you about the Molecular Foundry?",
     type: "text",
     image: "survey.svg",
@@ -253,15 +272,15 @@ function nextQuestion() {
       "<h2>Survey Complete</h2><p>Thank you for your feedback!</p><p>Please contact Donald Lee for issues or suggestions.</p><p>djlee2@lbl.gov</p>";
 
     // Trigger confetti animation
-    confetti({
+   confetti({
       particleCount: 100,
       spread: 70,
       origin: { y: 0.6 },
     });  
 
-    // For a more elaborate confetti effect, you can use this:
+       //For a more elaborate confetti effect, you can use this:
     
-     /*   var duration = 15 * 1000;
+      /*var duration = 15 * 1000;
         var animationEnd = Date.now() + duration;
         var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
 
