@@ -257,11 +257,11 @@ function nextQuestion() {
       particleCount: 100,
       spread: 70,
       origin: { y: 0.6 },
-    });
+    });  
 
     // For a more elaborate confetti effect, you can use this:
-    /*
-        var duration = 15 * 1000;
+    
+     /*   var duration = 15 * 1000;
         var animationEnd = Date.now() + duration;
         var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
 
@@ -279,9 +279,9 @@ function nextQuestion() {
             var particleCount = 50 * (timeLeft / duration);
             confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
             confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
-        }, 250);
-        */
-  }
+        }, 250); */
+        
+  } 
 }
 
 function prevQuestion() {

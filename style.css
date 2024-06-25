@@ -8,8 +8,15 @@ body {
     min-height: 100vh;
 }
 
+
+
+.bg-light {
+    background-color: #ff5733 !important; /* Your desired hex color */
+}
+
 header {
     flex-shrink: 0;
+    
 }
 
 main {
@@ -18,6 +25,10 @@ main {
     align-items: center;
     justify-content: center;
     border: none;
+}
+
+.bg-light {
+    background-color: #4698CB !important;
 }
 
 
