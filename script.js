@@ -14,22 +14,8 @@ const questions = [
     image: "survey.svg",
   },
   {
-    text: "How satisfied were you with the following?",
-    type: "likert",
-    statements: [
-      "Performance of equipment and facilities",
-      "Support for users provided by the facility staff",
-      "Fraction of the year that the facility operates",
-      "Scheduling and instrument availability (i.e., the awarded time was delivered on schedule and downtime was kept to a minimum)"
-    ],
-    options: [
-      "Strongly agree",
-      "Agree",
-      "Neither agree nor disagree",
-      "Disagree",
-      "Strongly disagree",
-      "Not Applicable",
-    ],
+    text: "Was your experience consistent for all facilities?",
+    type: "yesno",
     image: "survey.svg",
   },
   {
@@ -110,9 +96,12 @@ const questions = [
     type: "text",
     image: "survey.svg",
   },
+
+  // ... other questions ...
 ];
 
 let currentQuestionIndex = 0;
+let selectedFacilities = [];
 
 function displayQuestion(index) {
   const question = questions[index];
@@ -128,13 +117,15 @@ function displayQuestion(index) {
         const div = document.createElement("div");
         div.className = "form-check";
         div.innerHTML = `
-                    <input class="form-check-input" type="checkbox" id="${option}">
-                    <label class="form-check-label" for="${option}">${option}</label>
-                `;
+              <input class="form-check-input" type="checkbox" id="${option}" name="facility">
+              <label class="form-check-label" for="${option}">${option}</label>
+            `;
         answerContainer.appendChild(div);
       });
       break;
-
+    case "likert":
+      createLikertTable(question, answerContainer);
+      break;
     case "text":
       const textArea = document.createElement("textarea");
       textArea.className = "form-control";
@@ -142,62 +133,16 @@ function displayQuestion(index) {
       textArea.id = "text-answer";
       answerContainer.appendChild(textArea);
       break;
-
-    case "likert":
-      const table = document.createElement("table");
-      table.className = "table table-bordered table-sm likert-table";
-
-      const headerRow = table.insertRow();
-      const th = document.createElement("th");
-      th.textContent = "Statement";
-      headerRow.appendChild(th);
-      question.options.forEach((option) => {
-        const th = document.createElement("th");
-        th.textContent = option;
-        headerRow.appendChild(th);
-      });
-
-      question.statements.forEach((statement, statementIndex) => {
-        const row = table.insertRow();
-        const cell = row.insertCell();
-        cell.textContent = statement;
-
-        question.options.forEach((option, optionIndex) => {
-          const cell = row.insertCell();
-          const radio = document.createElement("input");
-          radio.type = "radio";
-          radio.name = `statement_${statementIndex}`;
-          radio.value = option;
-          radio.className = "form-check-input";
-          cell.appendChild(radio);
-        });
-      });
-
-      answerContainer.appendChild(table);
-      break;
-
     case "yesno":
       const yesNoContainer = document.createElement("div");
       yesNoContainer.className = "btn-group d-flex justify-content-center";
       yesNoContainer.setAttribute("role", "group");
-
-      const yesButton = document.createElement("button");
-      yesButton.type = "button";
-      yesButton.className = "btn btn-outline-primary btn-lg";
-      yesButton.textContent = "Yes";
-      yesButton.onclick = () => selectYesNo("Yes");
-
-      const noButton = document.createElement("button");
-      noButton.type = "button";
-      noButton.className = "btn btn-outline-primary btn-lg";
-      noButton.textContent = "No";
-      noButton.onclick = () => selectYesNo("No");
-
-      yesNoContainer.appendChild(yesButton);
-      yesNoContainer.appendChild(noButton);
+      yesNoContainer.innerHTML = `
+            <button type="button" class="btn btn-outline-primary btn-lg" onclick="selectYesNo('Yes')">Yes</button>
+            <button type="button" class="btn btn-outline-primary btn-lg" onclick="selectYesNo('No')">No</button>
+          `;
       answerContainer.appendChild(yesNoContainer);
       break;
-
     default:
       console.error("Unknown question type:", question.type);
   }
@@ -206,34 +151,37 @@ function displayQuestion(index) {
   updateNavigationButtons();
 }
 
-function selectYesNo(answer) {
-  const buttons = document.querySelectorAll("#answer-container button");
-  buttons.forEach((button) => {
-    if (button.textContent === answer) {
-      button.classList.remove("btn-outline-primary");
-      button.classList.add("btn-primary");
-    } else {
-      button.classList.remove("btn-primary");
-      button.classList.add("btn-outline-primary");
-    }
-  });
-  // Here you would typically save this answer
-  console.log("Selected answer:", answer);
-}
+function createLikertTable(question, container) {
+  const table = document.createElement("table");
+  table.className = "table table-bordered table-sm likert-table";
 
-function selectYesNo(answer) {
-  const buttons = document.querySelectorAll("#answer-container button");
-  buttons.forEach((button) => {
-    if (button.textContent === answer) {
-      button.classList.remove("btn-outline-primary");
-      button.classList.add("btn-primary");
-    } else {
-      button.classList.remove("btn-primary");
-      button.classList.add("btn-outline-primary");
-    }
+  const headerRow = table.insertRow();
+  const th = document.createElement("th");
+  th.textContent = "Statement";
+  headerRow.appendChild(th);
+  question.options.forEach((option) => {
+    const th = document.createElement("th");
+    th.textContent = option;
+    headerRow.appendChild(th);
   });
-  // Here you would typically save this answer
-  console.log("Selected answer:", answer);
+
+  question.statements.forEach((statement, statementIndex) => {
+    const row = table.insertRow();
+    const cell = row.insertCell();
+    cell.textContent = statement;
+
+    question.options.forEach((option, optionIndex) => {
+      const cell = row.insertCell();
+      const radio = document.createElement("input");
+      radio.type = "radio";
+      radio.name = `statement_${statementIndex}`;
+      radio.value = option;
+      radio.className = "form-check-input";
+      cell.appendChild(radio);
+    });
+  });
+
+  container.appendChild(table);
 }
 
 function updateProgressBar() {
@@ -253,73 +201,83 @@ function updateNavigationButtons() {
 }
 
 function nextQuestion() {
-  const currentQuestion = questions[currentQuestionIndex];
-  if (currentQuestion.type === "yesno") {
-    const selectedButton = document.querySelector(
-      "#answer-container .btn-primary"
+  const question = questions[currentQuestionIndex];
+  if (question.type === "checkbox") {
+    const checkboxes = document.querySelectorAll(
+      "input[name='facility']:checked"
     );
-    if (!selectedButton) {
-      alert("Please select an answer before proceeding.");
-      return;
+    selectedFacilities = Array.from(checkboxes).map((checkbox) => checkbox.id);
+    if (selectedFacilities.length > 0) {
+      insertLikertQuestions(selectedFacilities);
     }
   }
+
   if (currentQuestionIndex < questions.length - 1) {
     currentQuestionIndex++;
-    animateTransition(() => displayQuestion(currentQuestionIndex));
+    displayQuestion(currentQuestionIndex);
   } else {
-    // Handle survey completion
-    document.getElementById("question-container").innerHTML =
-      "<h2>Survey Complete</h2><p>Thank you for your feedback!</p><p>Please contact Donald Lee for issues or suggestions.</p><p>djlee2@lbl.gov</p>";
-
-    // Trigger confetti animation
-   confetti({
+    document.getElementById("question-container").innerHTML = `
+          <h2>Survey Complete</h2>
+          <p>Thank you for your feedback!</p>
+          <p>Please contact Donald Lee for issues or suggestions.</p>
+          <p>djlee2@lbl.gov</p>
+        `;
+    confetti({
       particleCount: 100,
       spread: 70,
       origin: { y: 0.6 },
-    });  
-
-       //For a more elaborate confetti effect, you can use this:
-    
-      /*var duration = 15 * 1000;
-        var animationEnd = Date.now() + duration;
-        var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
-
-        function randomInRange(min, max) {
-            return Math.random() * (max - min) + min;
-        }
-
-        var interval = setInterval(function() {
-            var timeLeft = animationEnd - Date.now();
-
-            if (timeLeft <= 0) {
-                return clearInterval(interval);
-            }
-
-            var particleCount = 50 * (timeLeft / duration);
-            confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
-            confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
-        }, 250); */
-        
-  } 
+    });
+  }
 }
 
 function prevQuestion() {
   if (currentQuestionIndex > 0) {
     currentQuestionIndex--;
-    animateTransition(() => displayQuestion(currentQuestionIndex));
+    displayQuestion(currentQuestionIndex);
   }
 }
 
-function animateTransition(callback) {
-  const container = document.getElementById("question-container");
-  container.style.opacity = 0;
-  setTimeout(() => {
-    callback();
-    container.style.opacity = 1;
-  }, 300);
+function selectYesNo(answer) {
+  const buttons = document.querySelectorAll("#answer-container .btn");
+  buttons.forEach((button) => {
+    button.classList.remove("btn-primary");
+    button.classList.add("btn-outline-primary");
+  });
+  event.target.classList.remove("btn-outline-primary");
+  event.target.classList.add("btn-primary");
+}
+
+function insertLikertQuestions(facilities) {
+  const likertQuestions = [];
+  facilities.forEach((facility) => {
+    const question = {
+      text: `How satisfied were you with the following at ${facility}?`,
+      type: "likert",
+      statements: [
+        "Performance of equipment and facilities",
+        "Support for users provided by the facility staff",
+        "Fraction of the year that the facility operates",
+        "Scheduling and instrument availability (i.e., the awarded time was delivered on schedule and downtime was kept to a minimum)",
+      ],
+      options: [
+        "Strongly agree",
+        "Agree",
+        "Neither agree nor disagree",
+        "Disagree",
+        "Strongly disagree",
+        "Not Applicable",
+      ],
+      image: "survey.svg",
+    };
+    likertQuestions.push(question);
+  });
+
+  questions.splice(currentQuestionIndex + 1, 0, ...likertQuestions);
 }
 
 document.getElementById("next-button").addEventListener("click", nextQuestion);
 document.getElementById("prev-button").addEventListener("click", prevQuestion);
 
 displayQuestion(currentQuestionIndex);
+
+console.log("Script loaded");
