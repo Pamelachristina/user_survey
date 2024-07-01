@@ -55,7 +55,7 @@ const questions = [
   },
   {
     text: "What was the subject of your work at the Molecular Foundry this year?(select the subject that best applies)",
-    type: "checkbox",
+    type: "radio",
     options: [
       "Basic Research",
       "Applied Research",
@@ -69,8 +69,8 @@ const questions = [
     options: [
       "Publish in peer-reviewed open literature",
       "Present findings at professional society meeting",
-      " Acquire a patent",
-      " Other",
+      "Acquire a patent",
+      "Other",
     ],
     image: "survey.svg",
   },
@@ -82,7 +82,7 @@ const questions = [
       "Facilitated collaborative interactions (e.g., stimulated new ideas for future experiments, increased multidisciplinary work; enabled a new approach within your discipline)",
       "Trained students (undergraduate, graduate or postdoctoral associate)",
       "Furthered the goals of the Department of Energy",
-      " Other",
+      "Other",
     ],
     image: "survey.svg",
   },
@@ -125,6 +125,17 @@ function displayQuestion(index) {
       break;
     case "likert":
       createLikertTable(question, answerContainer);
+      break;
+    case "radio":
+      question.options.forEach((option, index) => {
+        const div = document.createElement("div");
+        div.className = "form-check";
+        div.innerHTML = `
+              <input class="form-check-input" type="radio" id="radio_${index}" name="subject" value="${option}">
+              <label class="form-check-label" for="radio_${index}">${option}</label>
+            `;
+        answerContainer.appendChild(div);
+      });
       break;
     case "text":
       const textArea = document.createElement("textarea");
@@ -177,11 +188,20 @@ function createLikertTable(question, container) {
       radio.name = `statement_${statementIndex}`;
       radio.value = option;
       radio.className = "form-check-input";
+      radio.addEventListener("change", handleLikertChange);
       cell.appendChild(radio);
     });
   });
 
   container.appendChild(table);
+}
+
+function handleLikertChange(event) {
+  const { target } = event;
+  if (target.value === "Disagree" || target.value === "Strongly disagree") {
+    const modal = new bootstrap.Modal(document.getElementById('dissatisfactionModal'));
+    modal.show();
+  }
 }
 
 function updateProgressBar() {
@@ -203,12 +223,25 @@ function updateNavigationButtons() {
 function nextQuestion() {
   const question = questions[currentQuestionIndex];
   if (question.type === "checkbox") {
-    const checkboxes = document.querySelectorAll(
-      "input[name='facility']:checked"
-    );
-    selectedFacilities = Array.from(checkboxes).map((checkbox) => checkbox.id);
-    if (selectedFacilities.length > 0) {
-      insertLikertQuestions(selectedFacilities);
+    if (question.text.includes("facilities")) {
+      const checkboxes = document.querySelectorAll(
+        "input[name='facility']:checked"
+      );
+      selectedFacilities = Array.from(checkboxes).map((checkbox) => checkbox.id);
+      if (selectedFacilities.length > 0) {
+        insertLikertQuestions(selectedFacilities);
+      }
+    } else if (question.text.includes("communicating the knowledge")) {
+      const checkboxes = document.querySelectorAll(
+        "input[name='communicating']:checked"
+      );
+      const selectedOptions = Array.from(checkboxes).map((checkbox) => checkbox.id);
+      console.log("Selected options:", selectedOptions);
+    }
+  } else if (question.type === "radio") {
+    const selectedOption = document.querySelector("input[name='subject']:checked");
+    if (selectedOption) {
+      console.log("Selected option:", selectedOption.value);
     }
   }
 
@@ -281,3 +314,4 @@ document.getElementById("prev-button").addEventListener("click", prevQuestion);
 displayQuestion(currentQuestionIndex);
 
 console.log("Script loaded");
+
