@@ -14,11 +14,6 @@ const questions = [
     image: "survey.svg",
   },
   {
-    text: "Was your experience consistent for all facilities?",
-    type: "yesno",
-    image: "survey.svg",
-  },
-  {
     text: "What most impressed you about the Molecular Foundry?",
     type: "text",
     image: "survey.svg",
@@ -41,10 +36,10 @@ const questions = [
       "Strongly disagree",
       "Not Applicable",
     ],
-    image: "survey.svg",
+    
   },
   {
-    text: "Was your experience of the culture consistent for all facilities? Selecting “No” will give you the option to differentiate your responses to the questions above by facility?",
+    text: "Was your experience of the culture consistent for all facilities? \nSelecting “No” will give you the option to differentiate your responses to the questions above by facility?",
     type: "yesno",
     image: "survey.svg",
   },
@@ -54,7 +49,7 @@ const questions = [
     image: "survey.svg",
   },
   {
-    text: "What was the subject of your work at the Molecular Foundry this year?(select the subject that best applies)",
+    text: "What was the subject of your work at the Molecular Foundry this year? (select the subject that best applies)",
     type: "radio",
     options: [
       "Basic Research",
@@ -64,7 +59,7 @@ const questions = [
     image: "survey.svg",
   },
   {
-    text: "How do you intend on communicating the knowledge gained at the Molecular Foundry?(select all answers that apply)",
+    text: "How do you intend on communicating the knowledge gained at the Molecular Foundry? (select all answers that apply)",
     type: "checkbox",
     options: [
       "Publish in peer-reviewed open literature",
@@ -75,7 +70,7 @@ const questions = [
     image: "survey.svg",
   },
   {
-    text: "What additional benefits did you gain at the Molecular Foundry?(select all answers that apply)",
+    text: "What additional benefits did you gain at the Molecular Foundry? (select all answers that apply)",
     type: "checkbox",
     options: [
       "Obtained access to unique capabilities not available elsewhere (e.g., forefront experiments; one-of-a-kind instruments; distinctive materials or services)",
@@ -103,10 +98,17 @@ const questions = [
 let currentQuestionIndex = 0;
 let selectedFacilities = [];
 
+function shouldTriggerLikertSurvey(questionText) {
+  const excludedQuestions = [
+    "What additional benefits did you gain at the Molecular Foundry? (select all answers that apply)",
+    "How do you intend on communicating the knowledge gained at the Molecular Foundry? (select all answers that apply)"
+  ];
+  return !excludedQuestions.includes(questionText);
+}
+
 function displayQuestion(index) {
   const question = questions[index];
   document.getElementById("question-text").textContent = question.text;
-  document.getElementById("question-image").src = question.image;
 
   const answerContainer = document.getElementById("answer-container");
   answerContainer.innerHTML = "";
@@ -117,9 +119,9 @@ function displayQuestion(index) {
         const div = document.createElement("div");
         div.className = "form-check";
         div.innerHTML = `
-              <input class="form-check-input" type="checkbox" id="${option}" name="facility">
-              <label class="form-check-label" for="${option}">${option}</label>
-            `;
+          <input class="form-check-input" type="checkbox" id="${option}" name="facility">
+          <label class="form-check-label" for="${option}">${option}</label>
+        `;
         answerContainer.appendChild(div);
       });
       break;
@@ -131,9 +133,9 @@ function displayQuestion(index) {
         const div = document.createElement("div");
         div.className = "form-check";
         div.innerHTML = `
-              <input class="form-check-input" type="radio" id="radio_${index}" name="subject" value="${option}">
-              <label class="form-check-label" for="radio_${index}">${option}</label>
-            `;
+          <input class="form-check-input" type="radio" id="radio_${index}" name="subject" value="${option}">
+          <label class="form-check-label" for="radio_${index}">${option}</label>
+        `;
         answerContainer.appendChild(div);
       });
       break;
@@ -149,9 +151,9 @@ function displayQuestion(index) {
       yesNoContainer.className = "btn-group d-flex justify-content-center";
       yesNoContainer.setAttribute("role", "group");
       yesNoContainer.innerHTML = `
-            <button type="button" class="btn btn-outline-primary btn-lg" onclick="selectYesNo('Yes')">Yes</button>
-            <button type="button" class="btn btn-outline-primary btn-lg" onclick="selectYesNo('No')">No</button>
-          `;
+        <button type="button" class="btn btn-outline-primary btn-lg" onclick="selectYesNo('Yes')">Yes</button>
+        <button type="button" class="btn btn-outline-primary btn-lg" onclick="selectYesNo('No')">No</button>
+      `;
       answerContainer.appendChild(yesNoContainer);
       break;
     default:
@@ -216,27 +218,16 @@ function updateNavigationButtons() {
   const nextButton = document.getElementById("next-button");
 
   prevButton.disabled = currentQuestionIndex === 0;
-  nextButton.textContent =
-    currentQuestionIndex === questions.length - 1 ? "Finish" : "Next";
+  nextButton.textContent = currentQuestionIndex === questions.length - 1 ? "Finish" : "Next";
 }
 
 function nextQuestion() {
   const question = questions[currentQuestionIndex];
-  if (question.type === "checkbox") {
-    if (question.text.includes("facilities")) {
-      const checkboxes = document.querySelectorAll(
-        "input[name='facility']:checked"
-      );
-      selectedFacilities = Array.from(checkboxes).map((checkbox) => checkbox.id);
-      if (selectedFacilities.length > 0) {
-        insertLikertQuestions(selectedFacilities);
-      }
-    } else if (question.text.includes("communicating the knowledge")) {
-      const checkboxes = document.querySelectorAll(
-        "input[name='communicating']:checked"
-      );
-      const selectedOptions = Array.from(checkboxes).map((checkbox) => checkbox.id);
-      console.log("Selected options:", selectedOptions);
+  if (question.type === "checkbox" && shouldTriggerLikertSurvey(question.text)) {
+    const checkboxes = document.querySelectorAll("input[name='facility']:checked");
+    selectedFacilities = Array.from(checkboxes).map((checkbox) => checkbox.id);
+    if (selectedFacilities.length > 0) {
+      insertLikertQuestions(selectedFacilities);
     }
   } else if (question.type === "radio") {
     const selectedOption = document.querySelector("input[name='subject']:checked");
@@ -249,17 +240,7 @@ function nextQuestion() {
     currentQuestionIndex++;
     displayQuestion(currentQuestionIndex);
   } else {
-    document.getElementById("question-container").innerHTML = `
-          <h2>Survey Complete</h2>
-          <p>Thank you for your feedback!</p>
-          <p>Please contact Donald Lee for issues or suggestions.</p>
-          <p>djlee2@lbl.gov</p>
-        `;
-    confetti({
-      particleCount: 100,
-      spread: 70,
-      origin: { y: 0.6 },
-    });
+    finishSurvey();
   }
 }
 
@@ -308,10 +289,23 @@ function insertLikertQuestions(facilities) {
   questions.splice(currentQuestionIndex + 1, 0, ...likertQuestions);
 }
 
+function finishSurvey() {
+  document.getElementById("question-container").innerHTML = `
+    <h2>Survey Complete</h2>
+    <p>Thank you for your feedback!</p>
+    <p>Please contact Donald Lee for issues or suggestions.</p>
+    <p>djlee2@lbl.gov</p>
+  `;
+  confetti({
+    particleCount: 100,
+    spread: 70,
+    origin: { y: 0.6 },
+  });
+}
+
 document.getElementById("next-button").addEventListener("click", nextQuestion);
 document.getElementById("prev-button").addEventListener("click", prevQuestion);
 
 displayQuestion(currentQuestionIndex);
 
 console.log("Script loaded");
-
